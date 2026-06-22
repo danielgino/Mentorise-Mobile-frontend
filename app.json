@@ -38,11 +38,28 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default"
+        }
       ]
     ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "acb4e199-5257-42be-bb35-f1025dbc0759"
+      }
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "owner": "janoz"
   }
 }

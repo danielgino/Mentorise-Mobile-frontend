@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    * { font-family: 'Assistant_400Regular'; }
+}
+
+@layer utilities {
+    .font-medium   { font-family: 'Assistant_500Medium';   font-weight: 500; }
+    .font-semibold { font-family: 'Assistant_600SemiBold'; font-weight: 600; }
+    .font-bold     { font-family: 'Assistant_700Bold';     font-weight: 700; }
+}
+
+html, body, #root {
+    min-height: 100%;
+    height: auto;     /* חשוב במקום height:100% */
+    margin: 0;
+}
+
+/* רקע קבוע לכל הדפים */
+body {
+    background: #F8F9FC;
+}

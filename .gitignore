@@ -30,8 +30,16 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# env files — ignore all variants; keep the example template
+.env
+.env.*
+!.env.example
+
+# Claude Code project settings
+.claude/
+
+# Build output
+build/
 
 # typescript
 *.tsbuildinfo
@@ -41,3 +49,5 @@ app-example
 # generated native folders
 /ios
 /android
+
+.idea/
