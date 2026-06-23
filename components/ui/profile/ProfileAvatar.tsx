@@ -9,6 +9,7 @@ type ProfileAvatarProps = {
     imageUrl?: string;
     name: string;
     onEditClick: () => void;
+    uploading?: boolean;
 };
 
 function getInitials(name: string) {
@@ -22,7 +23,7 @@ function getInitials(name: string) {
         .slice(0, 2);
 }
 
-function ProfileAvatarComponent({ imageUrl, name, onEditClick }: ProfileAvatarProps) {
+function ProfileAvatarComponent({ imageUrl, name, onEditClick, uploading = false }: ProfileAvatarProps) {
     const initials = useMemo(() => getInitials(name), [name]);
     const hasImage = Boolean(imageUrl);
     const imgOpacity = useRef(new Animated.Value(0)).current;
@@ -99,6 +100,11 @@ function ProfileAvatarComponent({ imageUrl, name, onEditClick }: ProfileAvatarPr
                                     ) : (
                                         <User size={40} color="rgba(255,255,255,0.85)" />
                                     )}
+                                </View>
+                            )}
+                            {uploading && (
+                                <View style={StyleSheet.absoluteFillObject}>
+                                    <ShimmerPlaceholder height="100%" borderRadius={999} />
                                 </View>
                             )}
                         </View>

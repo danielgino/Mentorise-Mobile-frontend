@@ -8,6 +8,7 @@ type TutorCoverImageProps = {
     name?: string;
     height?: number;
     rounded?: boolean;
+    uploading?: boolean;
 };
 
 export default function TutorCoverImage({
@@ -15,6 +16,7 @@ export default function TutorCoverImage({
                                             name,
                                             height = 256,
                                             rounded = true,
+                                            uploading = false,
                                         }: TutorCoverImageProps) {
     const imgOpacity = useRef(new Animated.Value(0)).current;
 
@@ -65,6 +67,14 @@ export default function TutorCoverImage({
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     className="absolute inset-0"
+                />
+            )}
+
+            {uploading && (
+                <ShimmerPlaceholder
+                    style={StyleSheet.absoluteFillObject}
+                    height={height}
+                    borderRadius={rounded ? 24 : 0}
                 />
             )}
 

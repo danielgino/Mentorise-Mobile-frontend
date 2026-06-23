@@ -51,12 +51,6 @@ export default function HomeSwipe() {
     const [initialized, setInitialized] = useState(false);
 
     const currentTutor = tutors[index] ?? null;
-    const [previewTutor, setPreviewTutor] = useState<TutorSwipeItem | null>(null);
-
-    useEffect(() => {
-        if (isAnimating) return;
-        setPreviewTutor(tutors[index + 1] ?? null);
-    }, [tutors, index, isAnimating]);
 
     // ─── Animation values ────────────────────────────────────────────────────
     const x = useSharedValue(0);
@@ -218,7 +212,7 @@ export default function HomeSwipe() {
 
                 requestAnimationFrame(() => {
                     x.value = 0;
-                    y.value = 0;   // ← reset vertical too
+                    y.value = 0;
                 });
 
                 t2Ref.current = setTimeout(() => {
@@ -460,48 +454,34 @@ export default function HomeSwipe() {
                             </View>
                         </View>
 
-                        {/* Background (next) card */}
-                        <View
-                            className="absolute inset-0"
-                            pointerEvents="none"
-                            style={{ opacity: previewTutor ? 1 : 0 }}
-                        >
-                            {previewTutor ? (
-                                <View className="flex-1" key={previewTutor.id}>
-                                    <TutorCard
-                                        name={previewTutor.fullName}
-                                        field={previewTutor.majorName}
-                                        status={previewTutor.isAlumni ? "בוגר" : "סטודנט"}
-                                        courses={displayCoursesOrYears(previewTutor)}
-                                        description={previewTutor.bio ?? ""}
-                                        image={previewTutor.tutorImageUrl ?? undefined}
-                                        matchReason={previewTutor.matchReason}
-                                    />
-                                </View>
-                            ) : null}
-                        </View>
-
-                        {/* Foreground (current) card */}
-                        {currentTutor ? (
-                            <Animated.View
-                                key={currentTutor.id}
-                                className="absolute inset-0"
-                                style={cardStyle}
-                                {...panResponder.panHandlers}
-                            >
-                                <View className="flex-1">
-                                    <TutorCard
-                                        name={currentTutor.fullName}
-                                        field={currentTutor.majorName}
-                                        status={currentTutor.isAlumni ? "בוגר" : "סטודנט"}
-                                        courses={displayCoursesOrYears(currentTutor)}
-                                        description={currentTutor.bio ?? ""}
-                                        image={currentTutor.tutorImageUrl ?? undefined}
-                                        matchReason={currentTutor.matchReason}
-                                    />
-                                </View>
-                            </Animated.View>
-                        ) : null}
+                        {/* Card stack — stable keys keep native Image views alive across swipes */}
+                        {([tutors[index + 1], tutors[index]] as (TutorSwipeItem | undefined)[])
+                            .filter((t): t is TutorSwipeItem => !!t)
+                            .map((tutor, stackPos, arr) => {
+                                const isForeground = stackPos === arr.length - 1;
+                                return (
+                                    <Animated.View
+                                        key={tutor.id}
+                                        className="absolute inset-0"
+                                        style={isForeground ? cardStyle : undefined}
+                                        pointerEvents={isForeground ? "auto" : "none"}
+                                        {...(isForeground ? panResponder.panHandlers : {})}
+                                    >
+                                        <View className="flex-1">
+                                            <TutorCard
+                                                name={tutor.fullName}
+                                                field={tutor.majorName}
+                                                status={tutor.isAlumni ? "בוגר" : "סטודנט"}
+                                                courses={displayCoursesOrYears(tutor)}
+                                                description={tutor.bio ?? ""}
+                                                image={tutor.tutorImageUrl ?? undefined}
+                                                matchReason={tutor.matchReason}
+                                            />
+                                        </View>
+                                    </Animated.View>
+                                );
+                            })
+                        }
                     </View>
                 )
             ) : (

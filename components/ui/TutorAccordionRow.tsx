@@ -9,6 +9,7 @@ import {
     LayoutAnimation,
     Platform,
     UIManager,
+    StyleSheet,
 } from "react-native";
 import Animated, {
     useSharedValue,
@@ -24,6 +25,8 @@ import { useRouter } from "expo-router";
 import { type TutorSwipeItem } from "@/api/tutorsSwipeApi";
 import { getOrCreateConversation } from "@/api/chatApi";
 import { ROUTES } from "@/constants/routes";
+
+const loadedListImages = new Set<string>();
 
 // LayoutAnimation requires this flag on Android
 if (Platform.OS === "android") {
@@ -237,6 +240,11 @@ export function TutorAccordionRow({ tutor, isExpanded, onToggle }: TutorAccordio
     const router = useRouter();
     const [creatingChat, setCreatingChat] = useState(false);
 
+    const avatarOpacity = useSharedValue(
+        Boolean(tutor.tutorImageUrl && loadedListImages.has(tutor.tutorImageUrl)) ? 1 : 0
+    );
+    const avatarStyle = useAnimatedStyle(() => ({ opacity: avatarOpacity.value }));
+
     // Chevron rotation only — height animation is handled by LayoutAnimation
     const chevronProgress = useSharedValue(isExpanded ? 1 : 0);
 
@@ -321,30 +329,31 @@ export function TutorAccordionRow({ tutor, isExpanded, onToggle }: TutorAccordio
                 }}
             >
                 {/* Avatar */}
-                {tutor.tutorImageUrl ? (
-                    <Image
-                        source={{ uri: tutor.tutorImageUrl }}
-                        style={{ width: 44, height: 44, borderRadius: 22 }}
-                        resizeMode="cover"
-                    />
-                ) : (
+                <View style={{ width: 44, height: 44, borderRadius: 22, overflow: "hidden" }}>
                     <LinearGradient
                         colors={GRADIENT_COLORS_PRIMARY}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
-                        style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 22,
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
+                        style={[StyleSheet.absoluteFillObject, { alignItems: "center", justifyContent: "center" }]}
                     >
                         <Text style={{ color: "#fff", fontFamily: "Assistant_700Bold", fontWeight: "700", fontSize: 15 }}>
                             {getInitials(tutor.fullName)}
                         </Text>
                     </LinearGradient>
-                )}
+                    {tutor.tutorImageUrl ? (
+                        <Animated.View style={[StyleSheet.absoluteFillObject, avatarStyle]}>
+                            <Image
+                                source={{ uri: tutor.tutorImageUrl }}
+                                style={{ width: 44, height: 44 }}
+                                resizeMode="cover"
+                                onLoad={() => {
+                                    if (tutor.tutorImageUrl) loadedListImages.add(tutor.tutorImageUrl);
+                                    avatarOpacity.value = withTiming(1, { duration: 300 });
+                                }}
+                            />
+                        </Animated.View>
+                    ) : null}
+                </View>
 
                 {/* Name + field + course preview */}
                 <View style={{ flex: 1, minWidth: 0 }}>

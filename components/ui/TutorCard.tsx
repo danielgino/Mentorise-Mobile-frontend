@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Animated, Image, StyleSheet, Text, View } from "react-native";
 import { ShimmerPlaceholder } from "@/components/ui/ShimmerPlaceholder";
 import { LinearGradient } from "expo-linear-gradient";
@@ -8,6 +8,8 @@ import {
     GRADIENT_START,
     GRADIENT_END,
 } from "@/constants/theme";
+
+const loadedImages = new Set<string>();
 
 type TutorCardProps = {
     name: string;
@@ -30,11 +32,9 @@ export function TutorCard({
 }: TutorCardProps) {
     const visibleCourses = courses.slice(0, 4);
     const overflowCount = courses.length - visibleCourses.length;
-    const imgOpacity = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        imgOpacity.setValue(0);
-    }, [image]);
+    const [imageLoaded, setImageLoaded] = useState(() => Boolean(image && loadedImages.has(image)));
+    const imgOpacity = useRef(new Animated.Value(imageLoaded ? 1 : 0)).current;
 
     return (
         <View style={styles.root}>
@@ -49,16 +49,28 @@ export function TutorCard({
                     <View style={styles.photoZone}>
                         {image ? (
                             <>
-                                <ShimmerPlaceholder style={StyleSheet.absoluteFillObject} height="100%" />
+                                {!imageLoaded && (
+                                    <ShimmerPlaceholder style={StyleSheet.absoluteFillObject} height="100%" />
+                                )}
+                                {/* Blurred background: same image, fills zone, hides letterbox bars */}
+                                <Image
+                                    source={{ uri: image }}
+                                    style={[StyleSheet.absoluteFillObject, { opacity: 0.82 }]}
+                                    resizeMode="cover"
+                                    blurRadius={22}
+                                />
+                                <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.12)" }]} />
                                 <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: imgOpacity }]}>
                                     <Image
                                         source={{ uri: image }}
                                         style={styles.photo}
-                                        resizeMode="cover"
+                                        resizeMode="contain"
                                         accessibilityLabel={name}
-                                        onLoad={() =>
-                                            Animated.timing(imgOpacity, { toValue: 1, duration: 350, useNativeDriver: true }).start()
-                                        }
+                                        onLoad={() => {
+                                            if (image) loadedImages.add(image);
+                                            setImageLoaded(true);
+                                            Animated.timing(imgOpacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
+                                        }}
                                     />
                                 </Animated.View>
                                 <LinearGradient

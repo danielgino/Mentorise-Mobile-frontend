@@ -388,6 +388,7 @@ export default function ProfileScreen() {
                         imageUrl={avatarUrl}
                         name={user.fullName}
                         onEditClick={handleEditPhoto}
+                        uploading={isUploadingProfileImage}
                     />
 
                     <View className="mt-3 items-center">
@@ -595,6 +596,7 @@ export default function ProfileScreen() {
                                     <TutorImagePreview
                                         imageUrl={tutorImage || undefined}
                                         name={user.fullName}
+                                        uploading={isUploadingTutorImage}
                                     />
                                     <Text className="text-center text-sm text-[#9CA3AF]">
                                         תמונת מתרגל נפרדת מתמונת הפרופיל

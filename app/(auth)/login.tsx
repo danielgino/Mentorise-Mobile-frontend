@@ -3,7 +3,10 @@ import {
     ActivityIndicator,
     Animated,
     Easing,
+    KeyboardAvoidingView,
+    Platform,
     Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     View,
@@ -23,6 +26,7 @@ export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const { signIn } = useAuth();
 
     const logoScale      = useRef(new Animated.Value(0.8)).current;
@@ -61,13 +65,29 @@ export default function LoginScreen() {
     }, []);
 
     const onSubmit = async () => {
+        const trimmedEmail = email.trim();
+
+        if (!trimmedEmail) {
+            setError("יש להזין כתובת אימייל");
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+            setError("יש להזין כתובת אימייל תקינה");
+            return;
+        }
+        if (!password) {
+            setError("יש להזין סיסמה");
+            return;
+        }
+
+        setError(null);
         try {
             setLoading(true);
-            const res = await login(email.trim(), password);
+            const res = await login(trimmedEmail, password);
             await signIn(res.token);
             router.replace("/(tabs)");
         } catch {
-            // login error is handled by the UI state
+            setError("אחד מפרטי ההתחברות שהזנת אינו נכון");
         } finally {
             setLoading(false);
         }
@@ -89,7 +109,15 @@ export default function LoginScreen() {
                 style={styles.blobBottomLeft}
             />
 
-            <View style={styles.content}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.content}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
                 {/* Logo */}
                 <Animated.View style={{ transform: [{ scale: logoScale }], opacity: logoOpacity }}>
                     <LogoHeader />
@@ -152,14 +180,21 @@ export default function LoginScreen() {
                         </Pressable>
                     </View>
 
+                    {error ? (
+                        <View style={styles.errorBox}>
+                            <Text style={styles.errorText}>{error}</Text>
+                        </View>
+                    ) : null}
+
                     <PrimaryButton
                         onPress={onSubmit}
-                        disabled={loading || !email || !password}
+                        disabled={loading}
                     >
                         {loading ? <ActivityIndicator color="#fff" /> : "התחבר"}
                     </PrimaryButton>
                 </Animated.View>
-            </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }
@@ -187,9 +222,10 @@ const styles = StyleSheet.create({
         borderRadius: 110,
     },
     content: {
-        flex: 1,
+        flexGrow: 1,
         paddingHorizontal: DesignTokens.paddingContainer,
         justifyContent: "center",
+        paddingBottom: 40,
     },
     formPanel: {},
     headingBlock: {
@@ -235,5 +271,19 @@ const styles = StyleSheet.create({
         color: DesignTokens.blue,
         fontFamily: "Assistant_500Medium",
         fontWeight: "500",
+    },
+    errorBox: {
+        backgroundColor: "#FEF2F2",
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        marginBottom: 16,
+    },
+    errorText: {
+        fontSize: 14,
+        fontFamily: "Assistant_500Medium",
+        fontWeight: "500",
+        color: DesignTokens.error,
+        textAlign: "right",
     },
 });
