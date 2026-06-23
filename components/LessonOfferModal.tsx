@@ -138,6 +138,7 @@ export function LessonOfferModal({ isOpen, onClose, onSubmit }: LessonOfferModal
             cancelLabel="ביטול"
             submitDisabled={!canSubmit}
             layout="dialog"
+            scrollToEndOnKeyboard
             bottomSlot={
                 Platform.OS === "ios" && iosPickerMode ? (
                     <View

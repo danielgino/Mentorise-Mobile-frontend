@@ -2,6 +2,7 @@ import {
     AlertCircle,
     Bell,
     CheckCircle,
+    Clock,
     FileText,
     Info,
     Sparkles,
@@ -13,6 +14,7 @@ export function getNotificationUi(type: string) {
     switch (type) {
         case "APPLICATION_APPROVED":
         case "APPROVED":
+        case "TUTOR_APPLICATION_APPROVED":
             return {
                 icon: CheckCircle,
                 iconColor: "#40E0D0",
@@ -21,6 +23,7 @@ export function getNotificationUi(type: string) {
 
         case "APPLICATION_REJECTED":
         case "REJECTED":
+        case "TUTOR_APPLICATION_REJECTED":
             return {
                 icon: XCircle,
                 iconColor: "#FF6B6B",
@@ -37,6 +40,7 @@ export function getNotificationUi(type: string) {
 
         case "ACCOUNT_VERIFIED":
         case "VERIFIED":
+        case "USER_PROMOTED_TO_TUTOR":
             return {
                 icon: UserCheck,
                 iconColor: "#A66CFF",
@@ -56,6 +60,13 @@ export function getNotificationUi(type: string) {
                 icon: FileText,
                 iconColor: "#A66CFF",
                 ctaText: "לצפייה",
+            };
+
+        case "LESSON_REMINDER":
+            return {
+                icon: Clock,
+                iconColor: "#2E86DE",
+                ctaText: "לשיעורים שלי",
             };
 
         case "INFO":

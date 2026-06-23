@@ -1,6 +1,7 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    Keyboard,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -33,6 +34,8 @@ type BaseModalProps = {
     layout?: "sheet" | "dialog";
     /** Rendered outside the KeyboardAvoidingView, inside the backdrop — used for iOS date pickers */
     bottomSlot?: ReactNode;
+    /** When true, the dialog ScrollView scrolls to the end when the keyboard opens. Use only when the last field is a TextInput that would otherwise be covered. Default: false. */
+    scrollToEndOnKeyboard?: boolean;
 };
 
 export function BaseModal({
@@ -48,8 +51,28 @@ export function BaseModal({
     submitDisabled = false,
     layout = "sheet",
     bottomSlot,
+    scrollToEndOnKeyboard = false,
 }: BaseModalProps) {
     const isSubmitBlocked = submitDisabled || loading;
+
+    // Keyboard height for dialog layout — KAV is unreliable inside a Modal
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    useEffect(() => {
+        const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+        const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+        const show = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+        const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+        return () => { show.remove(); hide.remove(); };
+    }, []);
+
+    const scrollViewRef = useRef<ScrollView>(null);
+    useEffect(() => {
+        if (scrollToEndOnKeyboard && keyboardHeight > 0) {
+            requestAnimationFrame(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+            });
+        }
+    }, [keyboardHeight, scrollToEndOnKeyboard]);
 
     // ─── sheet layout (bottom sheet) ──────────────────────────────────────────
     if (layout === "sheet") {
@@ -150,17 +173,15 @@ export function BaseModal({
             animationType="fade"
             onRequestClose={onClose}
         >
-            <View className="flex-1 justify-center bg-black/70 px-4 py-6">
+            <View className="flex-1 bg-black/70 px-4 py-6">
                 <Pressable className="absolute inset-0" onPress={onClose} />
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : undefined}
-                    className="w-full"
-                >
+                <View style={{ flex: 1 }}>
                     <ScrollView
+                        ref={scrollViewRef}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ flexGrow: 1 }}
+                        contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingBottom: keyboardHeight }}
                     >
                         <View className="relative self-center w-full" style={{ maxWidth: 430 }}>
                             <View className="overflow-hidden rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white">
@@ -237,7 +258,7 @@ export function BaseModal({
                             </View>
                         </View>
                     </ScrollView>
-                </KeyboardAvoidingView>
+                </View>
 
                 {bottomSlot}
             </View>

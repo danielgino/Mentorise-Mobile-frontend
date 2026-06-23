@@ -11,11 +11,12 @@ import {getNotificationUi} from "@/components/ui/notificationUi";
 import {formatNotificationTime} from "@/constants/utils";
 
 export default function NotificationsScreen() {
-    const { notifications, loading, markAllAsRead, markAsRead } = useNotifications();
+    const { notifications, loading, markAllAsRead, markAsRead, refreshNotifications } = useNotifications();
     const isFocused = useIsFocused();
 
     useEffect(() => {
         if (isFocused) {
+            refreshNotifications();
             markAllAsRead();
         }
     }, [isFocused]);
@@ -41,7 +42,7 @@ export default function NotificationsScreen() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
                     >
-                        {loading ? (
+                        {loading && notifications.length === 0 ? (
                             <View className="items-center justify-center py-12">
                                 <ActivityIndicator size="large" color="#2E86DE" />
                             </View>

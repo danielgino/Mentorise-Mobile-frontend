@@ -55,18 +55,18 @@ export function SessionOfferBubble({
                     className="rounded-[18px] px-4 py-3"
                     style={{
                         borderWidth: 1,
-                        borderColor: isOutgoing ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.07)",
-                        backgroundColor: isOutgoing ? "rgba(0,0,0,0.12)" : "#F8F9FC",
+                        borderColor: isOutgoing ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.07)",
+                        backgroundColor: isOutgoing ? "rgba(255,255,255,0.92)" : "#F8F9FC",
                     }}
                 >
                     <Text
                         className="text-[15px] leading-[22px] text-right"
-                        style={{ writingDirection: "rtl", color: isOutgoing ? "#FFFFFF" : "#1A1A2E" }}
+                        style={{ writingDirection: "rtl", color: "#1A1A2E" }}
                     >
                         {content}
                     </Text>
                     <Text
-                        className="text-right text-[12px] leading-[18px] text-[#A66CFF]"
+                        className="text-right text-[12px] leading-[18px] text-[#E24B4A]"
                         style={{ writingDirection: "rtl", flexShrink: 1 }}
                     >
                         *הצעות שיעור תקפות ל־3 שעות לאישור מרגע שליחת ההצעה
