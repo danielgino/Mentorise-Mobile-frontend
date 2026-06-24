@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { isAxiosError } from "axios";
 import {
     ActivityIndicator,
     Animated,
     Easing,
-    KeyboardAvoidingView,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -81,13 +80,49 @@ export default function LoginScreen() {
         }
 
         setError(null);
+        setLoading(true);
         try {
-            setLoading(true);
-            const res = await login(trimmedEmail, password);
+            // Layer 1: login API call — inner catch so signIn is never reached on failure.
+            // Auth context loading never changes on login failure → screen never unmounts.
+            let res: Awaited<ReturnType<typeof login>>;
+            try {
+                res = await login(trimmedEmail, password);
+            } catch (loginErr: unknown) {
+                if (__DEV__) {
+                    console.log('[login] isAxiosError:', isAxiosError(loginErr));
+                    if (isAxiosError(loginErr)) {
+                        console.log('[login] status:', loginErr.response?.status);
+                        console.log('[login] error code:', loginErr.response?.data?.error);
+                        console.log('[login] message:', loginErr.response?.data?.message);
+                    }
+                }
+                if (isAxiosError(loginErr)) {
+                    const status = loginErr.response?.status;
+                    const msg    = loginErr.response?.data?.message;
+                    if (status === 429) {
+                        setError(msg ?? "בוצעו יותר מדי ניסיונות התחברות. נסה שוב בעוד 15 דקות.");
+                    } else {
+                        setError(msg ?? "אחד מפרטי ההתחברות שהזנת אינו נכון");
+                    }
+                } else {
+                    setError("אירעה שגיאה. נסה שוב.");
+                }
+                return;
+            }
+
+            // Layer 2: token guard — signIn is never called unless a valid token exists.
+            // Guards against edge cases where login() resolves with an error body.
+            if (!res?.token || typeof res.token !== "string" || !res.token.trim()) {
+                const body = res as unknown as { message?: string };
+                setError(body.message ?? "אחד מפרטי ההתחברות שהזנת אינו נכון");
+                return;
+            }
+
+            // Layer 3: signIn + navigation — only reached with a confirmed valid token.
             await signIn(res.token);
             router.replace("/(tabs)");
         } catch {
-            setError("אחד מפרטי ההתחברות שהזנת אינו נכון");
+            setError("אירעה שגיאה. נסה שוב.");
         } finally {
             setLoading(false);
         }
@@ -109,15 +144,11 @@ export default function LoginScreen() {
                 style={styles.blobBottomLeft}
             />
 
-            <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            <ScrollView
+                contentContainerStyle={styles.content}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
             >
-                <ScrollView
-                    contentContainerStyle={styles.content}
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
-                >
                 {/* Logo */}
                 <Animated.View style={{ transform: [{ scale: logoScale }], opacity: logoOpacity }}>
                     <LogoHeader />
@@ -194,7 +225,6 @@ export default function LoginScreen() {
                     </PrimaryButton>
                 </Animated.View>
                 </ScrollView>
-            </KeyboardAvoidingView>
         </View>
     );
 }
