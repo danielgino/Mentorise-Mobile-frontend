@@ -185,7 +185,8 @@ export function LessonOfferModal({ isOpen, onClose, onSubmit }: LessonOfferModal
                                 accentColor="#2E86DE"
                                 is24Hour={iosPickerMode === "time"}
                                 style={{ backgroundColor: "#FFFFFF" }}
-                                onValueChange={(_, value) => {
+                                onChange={(_, value) => {
+                                    if (!value) return;
                                     if (iosPickerMode === "date") setSelectedDate(value);
                                     else setSelectedTime(value);
                                 }}
