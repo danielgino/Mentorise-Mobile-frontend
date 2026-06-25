@@ -39,5 +39,5 @@ export const WS_HEARTBEAT_OUTGOING = 10000; // Client → Server heartbeat inter
 // ============================================
 export const WS_FORCE_BINARY_FRAMES = true; // Use binary frames for efficiency
 export const WS_APPEND_MISSING_NULL = true; // Auto-append NULL on incoming frames
-export const WS_LOG_RAW_COMMUNICATION = __DEV__; // Enable raw STOMP frame logging in development only
+export const WS_LOG_RAW_COMMUNICATION = false; // Raw frames include CONNECT with JWT — never log
 

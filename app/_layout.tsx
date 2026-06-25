@@ -7,7 +7,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AuthProvider, useAuth } from "@/hooks/AuthProvider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MentoBackground } from "@/components/ui/MentoBackground";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebSocketProvider } from "@/hooks/WebSocketProvider";
 import { KeyboardAvoidingView, Platform, View, ActivityIndicator } from "react-native";
 import { NotificationProvider } from "@/hooks/NotificationProvider";
@@ -30,6 +30,7 @@ function AppShell() {
     const router = useRouter();
     const segments = useSegments();
     const params = useGlobalSearchParams();
+    const insets = useSafeAreaInsets();
 
     usePushNotifications();
 
@@ -98,7 +99,7 @@ function AppShell() {
         <WebSocketProvider>
             <UnreadMessagesProvider>
             <NotificationProvider>
-                <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+                <View style={{ flex: 1, paddingTop: insets.top }}>
                     <KeyboardAvoidingView
                         style={{ flex: 1 }}
                         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -113,10 +114,9 @@ function AppShell() {
                             <Stack.Screen name="(onboarding)" />
                             <Stack.Screen name="(tabs)" />
                             <Stack.Screen name="reset-password" />
-                            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
                         </Stack>
                     </KeyboardAvoidingView>
-                </SafeAreaView>
+                </View>
             </NotificationProvider>
             </UnreadMessagesProvider>
         </WebSocketProvider>

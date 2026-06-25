@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { View, Text, ScrollView, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -13,6 +13,7 @@ import {formatNotificationTime} from "@/constants/utils";
 export default function NotificationsScreen() {
     const { notifications, loading, markAllAsRead, markAsRead, refreshNotifications } = useNotifications();
     const isFocused = useIsFocused();
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         if (isFocused) {
@@ -23,7 +24,7 @@ export default function NotificationsScreen() {
 
     return (
         <View className="flex-1 bg-[#F8F9FC]">
-            <SafeAreaView className="flex-1">
+            <View className="flex-1" style={{ paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right }}>
                 <View className="flex-1">
                     <View className="px-6 pt-4 pb-5">
                         <View className="mb-3 flex-row-reverse items-center justify-between">
@@ -69,7 +70,7 @@ export default function NotificationsScreen() {
                         )}
                     </ScrollView>
                 </View>
-            </SafeAreaView>
+            </View>
         </View>
     );
 }

@@ -64,6 +64,8 @@ export function usePushNotifications() {
     }, [user]);
 }
 
+// NOTE: Remote push notifications are not fully supported in Expo Go on SDK 54+.
+// They work correctly in a Development Build or production build.
 async function registerForPushNotificationsAsync(): Promise<string | null> {
     if (Platform.OS === "web") {
         return null;

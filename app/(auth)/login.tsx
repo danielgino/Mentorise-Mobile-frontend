@@ -88,14 +88,6 @@ export default function LoginScreen() {
             try {
                 res = await login(trimmedEmail, password);
             } catch (loginErr: unknown) {
-                if (__DEV__) {
-                    console.log('[login] isAxiosError:', isAxiosError(loginErr));
-                    if (isAxiosError(loginErr)) {
-                        console.log('[login] status:', loginErr.response?.status);
-                        console.log('[login] error code:', loginErr.response?.data?.error);
-                        console.log('[login] message:', loginErr.response?.data?.message);
-                    }
-                }
                 if (isAxiosError(loginErr)) {
                     const status = loginErr.response?.status;
                     const msg    = loginErr.response?.data?.message;

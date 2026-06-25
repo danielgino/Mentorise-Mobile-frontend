@@ -107,6 +107,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
                 Authorization: `Bearer ${token}`,
             },
 
+            debug: () => {},
+
             forceBinaryWSFrames: WS_FORCE_BINARY_FRAMES,
             appendMissingNULLonIncoming: WS_APPEND_MISSING_NULL,
             logRawCommunication: WS_LOG_RAW_COMMUNICATION,
@@ -114,8 +116,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
             reconnectDelay: WS_RECONNECT_DELAY,
             heartbeatIncoming: WS_HEARTBEAT_INCOMING,
             heartbeatOutgoing: WS_HEARTBEAT_OUTGOING,
-
-            debug: __DEV__ ? (str) => console.log("[STOMP]", str) : undefined,
 
             onConnect: () => {
                 setConnected(true);
